@@ -1,0 +1,565 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">
+<title>ReplyChef</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --bg:#f3f5f2; --panel:#ffffff; --panel-2:#eaf0ea; --line:#d9e0da; --line-2:#c4cfc6;
+  --ink:#16201a; --ink-2:#4b5850; --ink-3:#7c8a81;
+  --accent:#3d6b4f; --accent-2:#2c5039; --accent-soft:#dfeae1; --accent-ink:#ffffff;
+  --neg:#c9433f; --neg-soft:#fbe4e2; --warn:#b8791a; --warn-soft:#f8ead2; --good:#2f7a4c; --good-soft:#dcefe1;
+  --google:#1a5fb4; --yelp:#b5211f;
+  --neutral-bar:#aab5ad;
+  --shadow:0 1px 2px rgba(22,32,26,.06),0 8px 24px -12px rgba(22,32,26,.18);
+  --sans:"IBM Plex Sans","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  --disp:"Sora","IBM Plex Sans","PingFang SC",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#131a16; --panel:#1b2420; --panel-2:#222d27; --line:#2d3a33; --line-2:#3c4b42;
+    --ink:#eef2ee; --ink-2:#b7c3ba; --ink-3:#7f8d84;
+    --accent:#6fae88; --accent-2:#8cc4a2; --accent-soft:#233a2c; --accent-ink:#0f1a13;
+    --neg:#e66767; --neg-soft:#3a2222; --warn:#d9a24a; --warn-soft:#3a2e18; --good:#5cb37c; --good-soft:#1f3527;
+    --google:#6ea3ea; --yelp:#e07270; --neutral-bar:#5b6b61;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px -12px rgba(0,0,0,.5);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#131a16; --panel:#1b2420; --panel-2:#222d27; --line:#2d3a33; --line-2:#3c4b42;
+  --ink:#eef2ee; --ink-2:#b7c3ba; --ink-3:#7f8d84;
+  --accent:#6fae88; --accent-2:#8cc4a2; --accent-soft:#233a2c; --accent-ink:#0f1a13;
+  --neg:#e66767; --neg-soft:#3a2222; --warn:#d9a24a; --warn-soft:#3a2e18; --good:#5cb37c; --good-soft:#1f3527;
+  --google:#6ea3ea; --yelp:#e07270; --neutral-bar:#5b6b61;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px -12px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.55 var(--sans);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer}
+textarea,input{font:inherit;color:inherit}
+h1,h2,h3{font-family:var(--disp);margin:0;text-wrap:balance;letter-spacing:-.01em}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.app{display:grid;grid-template-columns:232px 1fr;min-height:100vh}
+.rail{background:var(--panel);border-right:1px solid var(--line);padding:22px 16px;display:flex;flex-direction:column;gap:22px;position:sticky;top:0;height:100vh}
+.brand{display:flex;align-items:center;gap:10px}
+.brand .mark{width:30px;height:30px;border-radius:8px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-family:var(--disp);font-weight:700;font-size:15px}
+.brand b{font-family:var(--disp);font-size:16px;font-weight:600}
+.brand small{display:block;color:var(--ink-3);font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+.store{padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel-2)}
+.store b{display:block;font-size:13px}
+.store span{color:var(--ink-3);font-size:12px}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav button{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 12px;border:0;border-radius:8px;background:none;text-align:left;font-weight:500;color:var(--ink-2)}
+.nav button:hover{background:var(--panel-2)}
+.nav button.on{background:var(--accent-soft);color:var(--accent-2);font-weight:600}
+.nav button:focus-visible,.btn:focus-visible,.chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.nav .cnt{font-family:var(--mono);font-size:11px;background:var(--neg);color:#fff;border-radius:999px;padding:1px 7px}
+.rail .foot{margin-top:auto;color:var(--ink-3);font-size:11.5px;line-height:1.5}
+.main{padding:26px 32px 60px;max-width:1180px;width:100%}
+.page{display:none}.page.on{display:block}
+.head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:18px;flex-wrap:wrap}
+.head h1{font-size:22px;font-weight:600}
+.head p{margin:4px 0 0;color:var(--ink-2)}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.chip{border:1px solid var(--line-2);background:var(--panel);border-radius:999px;padding:5px 12px;font-size:12.5px;color:var(--ink-2)}
+.chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.list{display:flex;flex-direction:column;gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);overflow:hidden}
+.card.neg{border-left:3px solid var(--neg)}
+.card.pos{border-left:3px solid var(--good)}
+.card.mid{border-left:3px solid var(--warn)}
+.rev{padding:16px 18px;display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.rev .left{min-width:0}
+.meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;font-size:12.5px;color:var(--ink-3)}
+.meta b{color:var(--ink);font-weight:600}
+.plat{font-size:11px;font-weight:600;letter-spacing:.04em;padding:2px 7px;border-radius:5px;border:1px solid currentColor}
+.plat.google{color:var(--google)}.plat.yelp{color:var(--yelp)}
+.stars{color:var(--warn);letter-spacing:1px;font-size:13px}
+.stars.low{color:var(--neg)}
+.txt{margin:0;color:var(--ink);max-width:62ch}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.tag{font-size:11.5px;padding:2px 8px;border-radius:6px;background:var(--panel-2);color:var(--ink-2)}
+.tag.cause{background:var(--neg-soft);color:var(--neg)}
+.draft{background:var(--panel-2);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.draft .lbl{display:flex;justify-content:space-between;align-items:center;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+.draft textarea{width:100%;min-height:200px;resize:vertical;border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--panel);line-height:1.55}
+.draft textarea:focus{outline:2px solid var(--accent);border-color:transparent}
+.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{border:1px solid var(--line-2);background:var(--panel);border-radius:8px;padding:7px 12px;font-weight:500;font-size:13px}
+.btn:hover{border-color:var(--ink-3)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{background:var(--accent-2);border-color:var(--accent-2)}
+.btn:disabled{opacity:.5;cursor:default}
+.hint{display:flex;gap:6px;flex-wrap:wrap}
+.hint button{border:1px dashed var(--line-2);background:none;border-radius:999px;padding:3px 10px;font-size:12px;color:var(--ink-2)}
+.hint button:hover{border-style:solid;color:var(--accent-2)}
+.state{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:2px 9px;border-radius:999px;white-space:nowrap;flex-shrink:0;text-transform:none;letter-spacing:0}
+.state.draft{background:var(--warn-soft);color:var(--warn)}
+.state.pending{background:var(--accent-soft);color:var(--accent-2)}
+.state.live{background:var(--good-soft);color:var(--good)}
+.state.copy{background:var(--panel);color:var(--ink-2);border:1px solid var(--line-2)}
+.state i{width:7px;height:7px;border-radius:50%;background:currentColor;display:inline-block}
+.note{font-size:12px;color:var(--ink-3)}
+.vc{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.vc-score{font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:999px;font-family:var(--mono)}
+.vc-score.ok{background:var(--good-soft);color:var(--good)}.vc-score.warn{background:var(--warn-soft);color:var(--warn)}.vc-score.bad{background:var(--neg-soft);color:var(--neg)}
+.vc-i{font-size:11px;padding:1px 7px;border-radius:5px;background:var(--panel);border:1px solid var(--line);color:var(--ink-2)}
+.vc-i.bad{border-color:var(--neg);color:var(--neg)}
+.empty{padding:40px;text-align:center;color:var(--ink-3);border:1px dashed var(--line-2);border-radius:12px}
+/* analytics */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.kpi .l{font-size:12px;color:var(--ink-3);letter-spacing:.04em;text-transform:uppercase;font-weight:600}
+.kpi .v{font-family:var(--mono);font-size:28px;font-weight:500;line-height:1.15;margin-top:6px}
+.kpi .d{font-size:12px;color:var(--ink-2);margin-top:4px}
+.kpi .d.bad{color:var(--neg)}.kpi .d.ok{color:var(--good)}
+.grid2{display:grid;grid-template-columns:3fr 2fr;gap:14px;margin-bottom:14px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.panel h3{font-size:14px;font-weight:600;margin-bottom:2px}
+.panel .sub{font-size:12px;color:var(--ink-3);margin-bottom:12px}
+svg text{font-family:var(--sans);fill:var(--ink-2);font-size:11px}
+svg .grid{stroke:var(--line);stroke-width:1}
+svg .axis{stroke:var(--line-2)}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--ink-2);margin-top:8px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.hbar{display:grid;grid-template-columns:110px 1fr 40px;gap:10px;align-items:center;font-size:13px;margin:7px 0}
+.hbar .bar{height:14px;background:var(--panel-2);border-radius:4px;overflow:hidden}
+.hbar .bar i{display:block;height:100%;background:var(--neg);border-radius:4px}
+.hbar .n{font-family:var(--mono);text-align:right;color:var(--ink-2)}
+.kw{display:flex;gap:8px;flex-wrap:wrap}
+.kw span{background:var(--panel-2);border-radius:6px;padding:4px 10px;font-size:13px}
+.kw span b{font-family:var(--mono);font-weight:500;color:var(--ink-3);margin-left:6px;font-size:12px}
+.tip{position:fixed;pointer-events:none;background:var(--ink);color:var(--bg);padding:6px 9px;border-radius:6px;font-size:12px;display:none;z-index:9;white-space:nowrap}
+/* summary */
+.phone{max-width:420px;background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:var(--shadow)}
+.phone .from{font-size:12px;color:var(--ink-3);text-align:center;margin-bottom:10px}
+.bubble{background:var(--panel-2);border-radius:16px 16px 16px 4px;padding:12px 14px;white-space:pre-wrap;line-height:1.6;font-size:13.5px}
+.two{display:grid;grid-template-columns:auto 1fr;gap:22px;align-items:start}
+.form{display:grid;gap:12px}
+.form label{display:grid;gap:4px;font-size:12.5px;color:var(--ink-2);font-weight:500}
+.form input,.form textarea{border:1px solid var(--line-2);border-radius:8px;padding:8px 10px;background:var(--panel);width:100%}
+.form textarea{min-height:70px;resize:vertical}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:999px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.on{opacity:1}
+.banner{background:var(--accent-soft);color:var(--accent-2);border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:16px;display:flex;gap:10px;align-items:center}
+@media (max-width:900px){
+  .app{grid-template-columns:1fr}
+  .rail{position:static;height:auto;flex-direction:row;flex-wrap:wrap;align-items:center;gap:12px;padding:12px 14px}
+  .rail .store,.rail .foot{display:none}
+  .nav{flex-direction:row;flex-wrap:wrap}
+  .main{padding:16px}
+  .rev,.grid2,.two{grid-template-columns:1fr}
+  .kpis{grid-template-columns:1fr 1fr}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head><body>
+
+<div class="app">
+  <aside class="rail">
+    <div class="brand"><div class="mark">R</div><div><b>ReplyChef</b><small>demo · 样例数据</small></div></div>
+    <div class="store"><b>Chef Fei · UTC</b><span>San Diego · 开业第 3 周</span></div>
+    <nav class="nav">
+      <button class="on" data-page="inbox">收件箱 <span class="cnt" id="cntInbox">0</span></button>
+      <button data-page="analytics">评论分析</button>
+      <button data-page="summary">每日总结</button>
+      <button data-page="profile">餐厅资料</button>
+    </nav>
+    <div class="foot">Google 评论：实时接入，回复直接发布。<br>Yelp 评论：起草后一键复制到 Yelp for Business。<br><br>评论为演示用样例，人名已替换。</div>
+  </aside>
+
+  <main class="main">
+    <!-- INBOX -->
+    <section class="page on" id="page-inbox">
+      <div class="head"><div><h1>待处理评论</h1><p>新差评 5 分钟内起草好回复，Andy 看一眼、点一下就发。</p></div>
+        <span class="note" id="clock"></span></div>
+      <div class="filters" id="filters">
+        <button class="chip on" data-f="todo">待处理</button>
+        <button class="chip" data-f="neg">只看差评</button>
+        <button class="chip" data-f="google">Google</button>
+        <button class="chip" data-f="yelp">Yelp</button>
+        <button class="chip" data-f="done">已回复</button>
+        <button class="chip" data-f="all">全部</button>
+      </div>
+      <div class="list" id="list"></div>
+    </section>
+
+    <!-- ANALYTICS -->
+    <section class="page" id="page-analytics">
+      <div class="head"><div><h1>评论分析</h1><p>最近 7 天，Google 与 Yelp 合并。</p></div></div>
+      <div class="kpis" id="kpis"></div>
+      <div class="grid2">
+        <div class="panel"><h3>每天新评论：好评 / 中评 / 差评</h3><div class="sub">4 到 5 星记好评，3 星中评，1 到 2 星差评</div>
+          <div id="stack"></div>
+          <div class="legend"><span><i style="background:var(--good)"></i>好评</span><span><i style="background:var(--neutral-bar)"></i>中评</span><span><i style="background:var(--neg)"></i>差评</span></div>
+        </div>
+        <div class="panel"><h3>差评原因</h3><div class="sub">一条差评可以有多个原因</div><div id="causes"></div></div>
+      </div>
+      <div class="grid2">
+        <div class="panel"><h3>平均星级走势</h3><div class="sub">按天，含当天全部评论</div><div id="trend"></div></div>
+        <div class="panel"><h3>差评里的高频词</h3><div class="sub">出现次数</div><div class="kw" id="kw"></div>
+          <div class="sub" style="margin-top:16px">回复情况</div><div id="replystat"></div></div>
+      </div>
+    </section>
+
+    <!-- SUMMARY -->
+    <section class="page" id="page-summary">
+      <div class="head"><div><h1>每日总结</h1><p>每天早上 9 点发到 Andy 手机。下面是昨天（9 月 7 日）的那条。</p></div></div>
+      <div class="two">
+        <div class="phone"><div class="from">ReplyChef · 09:00</div><div class="bubble" id="sumText"></div></div>
+        <div>
+          <div class="panel"><h3>这条总结怎么来的</h3><div class="sub">从当天评论自动生成，不用人写</div>
+            <ul style="margin:0;padding-left:18px;color:var(--ink-2);line-height:1.8">
+              <li>统计当天新评论数、星级分布，和前一天对比</li>
+              <li>差评按原因归类，算占比</li>
+              <li>提取评论里的具体事实（等了多久、几点、哪道菜）</li>
+              <li>给出当天最值得改的 3 件事</li>
+              <li>提醒还有几条没回</li>
+            </ul>
+            <div class="actions" style="margin-top:14px"><button class="btn primary" id="regen">重新生成一版</button><span class="note" id="regenNote"></span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROFILE -->
+    <section class="page" id="page-profile">
+      <div class="head"><div><h1>餐厅资料</h1><p>AI 起草回复时只引用这里写的事实，不会自己编。Andy 每周更新一次就行。</p></div></div>
+      <div class="banner">改完之后再去收件箱点「重写」，草稿会用新的信息。</div>
+      <div class="panel form" style="max-width:720px">
+        <label>署名 <input id="pSign" value="Andy, General Manager"></label>
+        <label>餐厅简介 <textarea id="pAbout">Chef Fei's first US location, near UTC in San Diego. Hunan cuisine, wok-fired dishes. Opened late August 2026.</textarea></label>
+        <label>营业与排队规则 <textarea id="pRules">Lunch kitchen takes last orders at 2:30 PM. Walk-in only for now; waitlist is managed at the host stand. We are rolling out text-message notifications so guests can leave and come back when their table is ready.</textarea></label>
+        <label>最近改进（回复里可以提的） <textarea id="pFix">Added a second host at the front on weekends. Dedicated phone line staffed 11 AM to 9 PM starting this week. Estimated wait times are now shared with every party at check-in. Kitchen retrained on wok sauce reduction for beef and broccoli.</textarea></label>
+        <label>联系方式 <input id="pContact" value="andy@cheffeiusa.com"></label>
+        <label>Andy 说话的习惯（AI 会模仿） <textarea id="pVoice">Direct, a little dry. Says "honestly" and "that's on me". Talks about the kitchen as "the kitchen", the host stand as "the front". Doesn't over-apologize. Proud of the pork with peppers and the fish head. Types on his phone, so short sentences, no fancy words.</textarea></label>
+        <label>署名可选（每条随机换一个，避免看起来像模板） <input id="pSigns" value="Andy / Andy, GM / Andy at Chef Fei"></label>
+        <label>回复里不能出现的 <input id="pNever" value="Do not promise refunds or specific compensation amounts. Do not blame guests. Do not mention other customers."></label>
+        <div class="actions"><button class="btn primary" id="saveProfile">保存</button><span class="note">demo 里只保存在本页面</span></div>
+      </div>
+    </section>
+  </main>
+</div>
+<div class="tip" id="tip"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ---------- sample data (fictionalized, based on real opening-week patterns) ----------
+const CAUSES={wait:"等待时长",waitlist:"等位管理",phone:"电话没人接",food:"菜品",service:"服务态度",clean:"卫生",price:"价格",other:"其他"};
+const R=[
+ {id:1,p:"google",n:"Y. Chen",r:1,d:"09-07",t:"13:40",x:"Zero stars. We arrived at 11:30 and took a ticket. Two hours later there were still ~20 groups in front of us. Then we were told the kitchen was closing at 2:30 and we might not get seated at all. Nobody could tell us an estimated wait. Left hungry after two and a half hours.",c:["wait","waitlist"],
+  draft:"Hi Y., Andy here, I run the front of house at Chef Fei.\n\nTwo and a half hours with a ticket and nobody giving you a straight answer on the wait. That's on me. Saturday I told the hosts to stop quoting times because we'd been wrong all morning, and it made things worse, not better.\n\nEvery party gets an honest estimate at check-in now, and text updates go live this week so you can actually leave and come back. If you're up for another try, email me at andy@cheffeiusa.com and I'll hold a table for you.\n\nAndy"},
+ {id:2,p:"google",n:"Paul C.",r:1,d:"09-07",t:"12:55",x:"Very disappointed with the service efficiency. Food: 1 Service: 1 Atmosphere: 1",c:["service","wait"],
+  draft:"Paul, thanks for the honest score even if it stings a bit.\n\nA 1 across the board tells me we lost you on more than the wait, and I'd like to know where. If you've got two minutes, email me at andy@cheffeiusa.com with roughly when you came in and I'll pull up that shift.\n\nAndy, GM"},
+ {id:3,p:"google",n:"Fengqing W.",r:1,d:"09-07",t:"11:10",x:"Extremely disappointing experience. We checked in with the host around 12:00 PM and were told the wait would be approximately 2 hours. We went to grab coffee nearby and came back at 1:45, only to find our name had been removed from the waitlist. No call, no text. The host said if you're not standing here when we call, you're off the list.",c:["waitlist","service"],
+  draft:"Fengqing, that's exactly the thing we should've prevented. I'm sorry.\n\nRight now the list only works if you stand by the door, which is a ridiculous rule when the wait is two hours. Text notifications switch on this week so you can leave and come back, and I've told the hosts to hold a name for 15 minutes after we call it.\n\nYou waited almost two hours and got nothing for it. Write me at andy@cheffeiusa.com, I'd like to make it up to you properly.\n\nAndy"},
+ {id:4,p:"google",n:"Minseo B.",r:1,d:"09-07",t:"10:30",x:"Honestly this place is NOT worth the wait. We were told it was an hour wait but after 2.5hrs we went back to check and they said they lost our name on the list. The beef and broccoli was swimming in sauce, no wok hei at all.",c:["waitlist","wait","food"],
+  draft:"Minseo, losing your name after you'd already waited two and a half hours. Yeah. That one's hard to read.\n\nOur paper list fell apart on Saturday and it's been replaced with a real system this week. And you're right about the beef and broccoli, it should come out dry and smoky, not sitting in sauce. Kitchen went back over that dish on Monday.\n\nI'd like you to taste the version we're actually proud of. Email me at andy@cheffeiusa.com and I'll make sure you're looked after.\n\nAndy"},
+ {id:5,p:"google",n:"Cathy S.",r:5,d:"09-07",t:"10:05",x:"Finally brought authentic Hunan wok-hei to the US! Ate at Chef Fei's first US location near UTC and the vibe was incredible. From the energetic Ni Hao welcome to the stir-fried pork with peppers, this is the real thing.",c:[],
+  draft:"Cathy, the pork with peppers is the dish we built the whole menu around, so this one made the kitchen's day. Thanks for coming during a pretty chaotic opening weekend.\n\nAndy"},
+ {id:6,p:"yelp",n:"Derek L.",r:2,d:"09-07",t:"15:20",x:"Called four times to ask about the wait before driving over. Nobody picked up. Showed up anyway and it was 90 minutes. Food was decent when it finally came, the cumin lamb was great, but the front of house is a mess.",c:["phone","wait"],
+  draft:"Derek, four calls and nobody picked up. Honestly, embarrassing.\n\nOur one phone sits at the host stand, and Saturday the hosts were dealing with a line out the door. There's a dedicated line staffed 11 to 9 starting this week, so someone will actually answer. Glad the cumin lamb held up its end at least.\n\nTry us on a weekday and I think you'll see a very different front of house.\n\nAndy, GM"},
+ {id:7,p:"google",n:"Jessica M.",r:2,d:"09-06",t:"19:40",x:"Waited about an hour and 40 minutes on Friday night. The host stand seemed overwhelmed and nobody could tell us how much longer. The fish head with chopped chili was excellent though.",c:["wait","waitlist"],
+  draft:"Jessica, an hour forty on a Friday and nobody could tell you how much longer. You read the host stand right, they were drowning.\n\nI've added a second host for weekend nights and every party gets a real estimate at check-in now. Really glad the fish head delivered, that's the one we're proudest of.\n\nAndy"},
+ {id:8,p:"google",n:"Ravi K.",r:4,d:"09-06",t:"13:15",x:"Great food, especially the smoked pork with garlic sprouts. Took off a star because the wait was long and the table was still sticky when we sat down.",c:["clean","wait"],
+  draft:"Ravi, sticky table is on us, no matter how fast we're flipping seats. Mentioned it to the floor team this morning.\n\nThanks for calling out the smoked pork with garlic sprouts. People either haven't tried it yet or can't stop ordering it.\n\nAndy"},
+ {id:9,p:"yelp",n:"Amanda T.",r:1,d:"09-06",t:"14:50",x:"Got a ticket at 12:10, told 1.5 hours. At 2:20 we were still not seated and they said the kitchen closes at 2:30 so probably not today. Why keep handing out tickets you can't honor?",c:["waitlist","wait"],
+  draft:"Amanda, you asked the right question and I don't have a good answer for Saturday.\n\nWe should've stopped handing out tickets around 1 once it was obvious the kitchen couldn't reach everyone before last orders at 2:30. We didn't, and you paid for it with two hours. The hosts now cut the list off based on what the kitchen can actually do.\n\nI'd like to feed you properly. Email me at andy@cheffeiusa.com and I'll set it up.\n\nAndy, GM"},
+ {id:10,p:"google",n:"Tom H.",r:5,d:"09-06",t:"12:30",x:"Best Hunan food in San Diego, no contest. Yes there's a wait, go on a weekday.",c:[],draft:"Tom, weekday is the move right now. Thanks for saying so.\n\nAndy"},
+ {id:11,p:"google",n:"Lin Z.",r:3,d:"09-06",t:"20:10",x:"Food is authentic and spicy the right way. But $18 for a small plate of stir fried cauliflower felt steep, and the portions are smaller than the photos suggest.",c:["price"],
+  draft:"Lin, fair point on the cauliflower. You're not the first to mention the portion, and I'm looking at a few of the vegetable plates because of it. Glad the heat level landed, that part we won't change.\n\nAndy"},
+ {id:12,p:"google",n:"Brian O.",r:1,d:"09-05",t:"13:20",x:"Server forgot our order, then brought the wrong dish, then argued about it. Two hours total for lunch. Not coming back.",c:["service","wait"],
+  draft:"Brian, wrong dish I can forgive. Arguing about it, no.\n\nI've talked with the server. That's not how we do things here and I'm sorry that's what you got on your first visit. If you ever feel like giving us another go, email me at andy@cheffeiusa.com and I'll look after you myself.\n\nAndy, GM"},
+ {id:13,p:"yelp",n:"Grace P.",r:5,d:"09-05",t:"18:00",x:"The stir-fried pork with peppers is unreal. Came at 5pm on a Friday and got seated in 20 minutes.",c:[],draft:"Grace, 5pm on a Friday. You found the secret. Thanks for the kind words.\n\nAndy"},
+ {id:14,p:"google",n:"Kevin W.",r:2,d:"09-05",t:"14:05",x:"Phone rings and rings. Drove 30 minutes based on the Google hours, got there at 2:15 and was told no more seating. Update your hours or answer the phone.",c:["phone","other"],
+  draft:"Kevin, you're right on both counts.\n\nOur listing didn't say the lunch kitchen takes last orders at 2:30, and nobody picked up the phone to warn you. The Google hours are fixed now, and the phone's staffed 11 to 9 starting this week.\n\nThirty minutes of driving for nothing is a rough first impression. I'd like a chance to fix it.\n\nAndy"},
+ {id:15,p:"google",n:"Sofia R.",r:4,d:"09-05",t:"12:45",x:"Loved the cumin lamb and the steamed fish. Service was rushed but friendly. Would come back.",c:[],draft:"Sofia, rushed but friendly is an honest read of where we're at right now. Thanks for the patience, and for the kind words on the lamb.\n\nAndy"},
+ {id:16,p:"google",n:"Daniel F.",r:1,d:"09-04",t:"19:30",x:"Removed from waitlist while we were in the restroom. Seriously. Host shrugged.",c:["waitlist","service"],
+  draft:"Daniel, a shrug is not how that should've gone. Neither is dropping you for a restroom break.\n\nI've told the hosts to hold a name for 15 minutes after we call it, and text updates go live this week. Sorry you got the worst version of our opening month.\n\nAndy"},
+ {id:17,p:"yelp",n:"Helen C.",r:3,d:"09-04",t:"13:00",x:"Good food, chaotic front desk, 55 min wait on a Thursday. The dry pot was too salty for us.",c:["wait","food"],
+  draft:"Helen, thanks for the fair three. I'm passing the dry pot note straight to the kitchen, salt's an easy fix.\n\nFront desk's getting a second host and real wait estimates, so a Thursday should feel a lot calmer soon.\n\nAndy"},
+ {id:18,p:"google",n:"Marcus J.",r:5,d:"09-04",t:"12:20",x:"Finally, real Hunan food. Wok hei on point.",c:[],draft:"Marcus, that's the whole reason we opened here. Thank you.\n\nAndy"},
+ {id:19,p:"google",n:"Priya N.",r:2,d:"09-03",t:"18:45",x:"Waited 70 minutes, then the beef and broccoli came out watery and lukewarm. Dumplings were good.",c:["food","wait"],
+  draft:"Priya, watery and lukewarm is not how that plate is supposed to leave the wok. Kitchen's gone back over the beef and broccoli this week, sauce reduction mostly.\n\nThanks for the dumpling credit at least. I'd like you to try the fixed version.\n\nAndy"},
+ {id:20,p:"google",n:"Eric S.",r:4,d:"09-03",t:"13:10",x:"Solid. 40 min wait at lunch, pork with peppers worth it.",c:[],draft:"Eric, thanks. Forty minutes is still longer than we want, working on it.\n\nAndy"},
+ {id:21,p:"yelp",n:"Nina L.",r:5,d:"09-03",t:"12:00",x:"Came on a Wednesday at opening, no wait, everything was fantastic. The staff were sweet.",c:[],draft:"Nina, Wednesday at opening is the way to do it right now. Thanks for the kind words about the team, I'll pass them on.\n\nAndy"},
+ {id:22,p:"google",n:"Jason T.",r:1,d:"09-02",t:"14:30",x:"Nobody answers the phone. Came in, hour wait, then they seated a party that arrived after us. When we asked, the host said the list got mixed up.",c:["phone","waitlist"],
+  draft:"Jason, getting skipped after an hour is the one thing a waitlist exists to prevent. The paper list got mixed up, which is exactly why I've thrown it out.\n\nPhone line's staffed from this week too. Sorry your first visit was the messy one.\n\nAndy, GM"},
+ {id:23,p:"google",n:"Olivia G.",r:4,d:"09-02",t:"13:00",x:"Great flavors, spicy as promised. Parking is tough, plan ahead.",c:[],draft:"Olivia, thanks. And good tip on parking, the garage behind the building is usually easier than the front lot.\n\nAndy"},
+ {id:24,p:"google",n:"Wei L.",r:5,d:"09-02",t:"12:15",x:"Tastes like home. Chopped chili fish head is the real deal.",c:[],draft:"Wei, tastes like home is the best thing anyone can say to us. Thank you.\n\nAndy"},
+];
+// replied state: older ones already replied, this weekend's are pending
+const ST={};
+R.forEach(r=>{ST[r.id]= r.d<="09-05" ? "live" : "draft";});
+ST[15]="live";ST[13]="live";
+
+// ---------- helpers ----------
+const $=s=>document.querySelector(s);
+const el=(h)=>{const t=document.createElement('template');t.innerHTML=h.trim();return t.content.firstChild;};
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const sent=r=>r.r>=4?'pos':r.r===3?'mid':'neg';
+const stars=r=>'★'.repeat(r)+'☆'.repeat(5-r);
+let toastT;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('on'),2200);}
+// Demo mode: rewrites are pre-written variants (the real product generates these live from replyPrompt below)
+const VARIANTS={"1": {"soft": "Hi Y., Andy here from Chef Fei.\n\nI read your review twice and I'm sorry. Two and a half hours with a ticket, nobody able to tell you how long, and then the news that the kitchen was closing. That's a rough first visit and you didn't deserve it.\n\nWe've fixed the part that failed you: every party gets an honest estimate at check-in now, and text updates go live this week so you can leave and come back. If you'd ever give us another go, email me at andy@cheffeiusa.com and I'll take care of the table myself.\n\nAndy", "short": "Y., two and a half hours and no straight answer on the wait. That's on me.\n\nHonest estimates at check-in now, text updates this week. Email me at andy@cheffeiusa.com if you're up for another try, I'll hold a table.\n\nAndy", "direct": "Y., here's what happened. Saturday I told the hosts to stop quoting wait times because we'd been wrong all morning. Bad call. You got a ticket, no information, and then nothing to eat.\n\nIt's fixed. Every party gets a real estimate at check-in and the list gets cut off when the kitchen can't reach everyone before 2:30.\n\nEmail me at andy@cheffeiusa.com, I owe you a proper lunch.\n\nAndy, GM", "sms": "Hi Y., Andy here. Two and a half hours with a ticket and no answer on the wait, that's on me.\n\nThe thing that would've saved your Saturday is going live this week: text notifications. You check in, walk off, and get a message when the table's close. No more standing by the door.\n\nIf you're willing to try again, email me at andy@cheffeiusa.com and I'll hold a table.\n\nAndy", "regen": "Y., Andy here. I'm not going to argue with zero stars, you waited two and a half hours and left hungry.\n\nSaturday our estimates were wrong all morning so I told the hosts to stop giving them. Honestly, that made it worse. Now every party gets a real number at check-in and text updates start this week.\n\nWrite me at andy@cheffeiusa.com and let me fix this properly.\n\nAndy at Chef Fei"}, "3": {"soft": "Fengqing, I'm sorry. You did everything right, checked in, came back before the two hours were up, and we'd dropped you. That must have been so frustrating after a long wait.\n\nText notifications go live this week so you can step out without losing your spot, and the hosts now hold a name for 15 minutes after we call it.\n\nI'd really like to make this up to you. Email me at andy@cheffeiusa.com.\n\nAndy", "short": "Fengqing, we dropped you after two hours and that's on us.\n\nText updates start this week and hosts now hold a name 15 minutes after calling it. Email me at andy@cheffeiusa.com and I'll make it right.\n\nAndy", "direct": "Fengqing, the rule the host gave you is a bad rule and I've changed it. Nobody should have to stand by the door for two hours to keep a spot.\n\nText notifications start this week. Names get held 15 minutes after we call them.\n\nYou got nothing for your wait. Email me at andy@cheffeiusa.com and I'll fix that.\n\nAndy, GM", "sms": "Fengqing, being removed for grabbing a coffee is exactly the problem text notifications solve, and they go live this week. You'll get a message when your table's a few minutes out, wherever you are.\n\nI've also told the hosts to hold a name for 15 minutes after we call it. Sorry you hit the old system.\n\nEmail me at andy@cheffeiusa.com, I'd like to make it up to you.\n\nAndy", "regen": "Fengqing, I'm sorry, that's a terrible way to lose two hours.\n\nThe list only working if you're standing there was a leftover from our first week, and it's gone. Text updates go live this week, and hosts hold names for 15 minutes now.\n\nIf you're willing, email me at andy@cheffeiusa.com. I'd like your next visit to be the real one.\n\nAndy at Chef Fei"}, "4": {"soft": "Minseo, I'm sorry. Waiting two and a half hours and then hearing we'd lost your name is about the worst version of a first visit, and I understand why you wouldn't call it worth it.\n\nThe paper list is gone as of this week. And on the beef and broccoli, you're right, it should be dry and smoky. The kitchen reworked the sauce on Monday.\n\nIf you'd give us one more try, email me at andy@cheffeiusa.com and I'll make sure you're looked after.\n\nAndy", "short": "Minseo, lost name after two and a half hours, then a wet beef and broccoli. Yeah, not our day.\n\nList's replaced, sauce is fixed. Email me at andy@cheffeiusa.com if you'll give us another go.\n\nAndy", "direct": "Minseo, two failures in one visit. The paper waitlist lost your name, and the beef and broccoli came out swimming.\n\nBoth are fixed: real waitlist system this week, and the kitchen went back over that sauce on Monday.\n\nEmail me at andy@cheffeiusa.com and I'll make sure your next plate is the one we're proud of.\n\nAndy, GM", "sms": "Minseo, losing your name after two and a half hours is exactly why we're switching to text notifications this week. You check in once, and the system tracks you, not a sheet of paper.\n\nOn the beef and broccoli, you're right, the kitchen reworked the sauce reduction on Monday.\n\nEmail me at andy@cheffeiusa.com, I'd like you to try the fixed version.\n\nAndy", "regen": "Minseo, honestly, that review is hard to read because every word of it is fair.\n\nThe paper list fell apart on Saturday and it's been replaced. The beef and broccoli should never leave the wok wet, and the kitchen's already gone back over it.\n\nEmail me at andy@cheffeiusa.com. I'd like a second chance at a first impression.\n\nAndy at Chef Fei"}, "6": {"soft": "Derek, I'm sorry about the phone. Four calls with no answer, then a 90 minute wait, that's a lot of patience and I appreciate that you still gave the food a fair shake.\n\nThere's a dedicated line staffed 11 to 9 starting this week, so someone will actually pick up. Glad the cumin lamb came through.\n\nCome by on a weekday and I think you'll see a calmer front.\n\nAndy", "short": "Derek, four unanswered calls. Embarrassing, no excuse.\n\nDedicated phone line staffed 11 to 9 from this week. Glad the cumin lamb held up. Try a weekday next time.\n\nAndy", "direct": "Derek, the phone didn't get answered because it's at the host stand and the hosts were buried. That's a setup problem, and it's mine.\n\nFixed as of this week: separate line, staffed 11 to 9.\n\nThe lamb being good doesn't cancel out the front of house being a mess, I know. Give us a weekday and see.\n\nAndy, GM", "sms": "Derek, four calls and nobody picked up. Honestly, embarrassing.\n\nTwo fixes this week: a dedicated phone line staffed 11 to 9, and text notifications on the waitlist so a 90 minute wait doesn't mean 90 minutes standing there.\n\nGlad the cumin lamb held up its end. Try us on a weekday.\n\nAndy", "regen": "Derek, yeah, the front of house was a mess on Saturday and the phone was the most visible part of it.\n\nWe've put in a dedicated line staffed 11 to 9 starting this week. Glad the cumin lamb was worth something.\n\nWeekday's a different place. Come see.\n\nAndy at Chef Fei"}, "9": {"soft": "Amanda, I'm sorry. You waited over two hours on a promise we couldn't keep, and that's the part that bothers me most.\n\nWe should have stopped handing out tickets once it was clear the kitchen couldn't reach everyone before 2:30. The hosts now cut the list off based on what the kitchen can actually do.\n\nI'd really like to feed you properly. Email me at andy@cheffeiusa.com.\n\nAndy", "short": "Amanda, fair question. We shouldn't have handed out tickets we couldn't honor.\n\nList now cuts off based on kitchen capacity. Email me at andy@cheffeiusa.com and I'll set up a proper lunch.\n\nAndy", "direct": "Amanda, we handed out tickets we knew we probably couldn't honor. That's the honest answer to your question.\n\nAs of this week the hosts stop the list when the kitchen can't reach everyone before last orders at 2:30.\n\nYou're owed a meal. Email me at andy@cheffeiusa.com.\n\nAndy, GM", "sms": "Amanda, you asked the right question. Two fixes this week: the list now stops when the kitchen can't get to everyone before 2:30, and text notifications mean you'll know where you stand without standing there.\n\nI'd like to feed you properly. Email me at andy@cheffeiusa.com.\n\nAndy", "regen": "Amanda, no good answer for Saturday. Handing out tickets past what the kitchen could serve was a mistake and you paid for it with two hours.\n\nThe hosts now cap the list on real capacity. Email me at andy@cheffeiusa.com and I'll set you up with the lunch you should've had.\n\nAndy at Chef Fei"}, "12": {"soft": "Brian, I'm sorry. A forgotten order and a wrong dish are bad enough on a first visit, but being argued with on top of that is what I'd be upset about too.\n\nI've talked with the server. That's not how we treat guests here.\n\nIf you ever reconsider, email me at andy@cheffeiusa.com and I'll look after you personally.\n\nAndy", "short": "Brian, wrong dish, forgivable. Arguing about it, not.\n\nI've spoken with the server. Email me at andy@cheffeiusa.com if you ever change your mind.\n\nAndy", "direct": "Brian, the server was wrong to argue with you, full stop. I've addressed it with them directly.\n\nTwo hours for lunch on top of that is not the restaurant we're trying to run.\n\nIf you're ever willing, email me at andy@cheffeiusa.com and I'll handle your table myself.\n\nAndy, GM", "sms": "Brian, arguing with a guest over a wrong dish is not how we do things, and I've talked with the server.\n\nOn the two hours, we've added a second host and text notifications this week so the wait at least doesn't mean standing at the door.\n\nEmail me at andy@cheffeiusa.com if you ever reconsider.\n\nAndy", "regen": "Brian, honestly, reading that one stung. Forgot the order, wrong dish, then an argument. Three strikes.\n\nI've talked with the server. If you ever give us another shot, email me at andy@cheffeiusa.com and I'll take care of you myself.\n\nAndy at Chef Fei"}};
+function typeOut(el,text,done){let i=0;const words=text.split(/(\s+)/);el.value!==undefined?el.value='':el.textContent='';const t=setInterval(()=>{i+=2;const cur=words.slice(0,i).join('');if(el.value!==undefined)el.value=cur;else el.textContent=cur;if(i>=words.length){clearInterval(t);done&&done();}},28);}
+
+function profile(){return {sign:$('#pSign').value,about:$('#pAbout').value,rules:$('#pRules').value,fix:$('#pFix').value,contact:$('#pContact').value,never:$('#pNever').value,voice:$('#pVoice').value,signs:$('#pSigns').value};}
+
+// Phrases real readers flag as "this is a template / a bot wrote this"
+const BANNED=["apologize for any inconvenience","sorry for any inconvenience","for the inconvenience","inconvenience this may have caused","your feedback is important","we value your feedback","valuable feedback","we strive","take this very seriously","take reviews very seriously","fell below our usual standards","not our usual standard","we pride ourselves","rest assured","dear valued","dear guest","please accept our sincerest","sincerest apologies","customer service team","exceed your expectations","measures of improvement","sorry you feel","sorry if","guest experience","we regret"];
+
+function replyPrompt(r,hint){
+  const p=profile();
+  return `You are ghostwriting a public owner reply to a restaurant review, in the voice of the restaurant's manager. It must read like a busy manager typed it on his phone between services, not like a template or an AI.
+
+RESTAURANT FACTS (only use these, never invent others):
+About: ${p.about}
+Hours and waitlist: ${p.rules}
+Recent fixes we can mention: ${p.fix}
+Contact: ${p.contact}
+Rules: ${p.never}
+Manager's own voice notes: ${p.voice}
+Sign-off options (pick one, vary across replies): ${p.signs}
+
+REVIEW (${r.r} stars, from ${r.p==='google'?'Google':'Yelp'}, by ${r.n}):
+"""${r.x}"""
+
+HOW REAL OWNERS WRITE (follow all of these):
+1. Open with the first name, or go straight in. Never "Dear", never "Thank you for your feedback".
+2. Echo one concrete detail from the review in the first two sentences (the wait time, the dish, the day, what the host said).
+3. Use contractions everywhere a person would: I'm, we've, didn't, that's, you're. Zero contractions reads as a bot.
+4. Say "I" at least once when owning the problem. "We" is fine elsewhere.
+5. Say what actually happened in one plain sentence if the facts above explain it. A fact is not an excuse.
+6. Own it in plain words: "that's on me", "we blew it", "no good answer for that". Apologize at most once, maybe twice. Never hedge with "sorry if" or "sorry you feel".
+7. Mention at most one or two fixes that relate to THEIR complaint. Skip the rest.
+8. Vary sentence length. Include at least one very short sentence (under 6 words) and one longer one.
+9. One casual marker is fine ("Honestly", "Yeah", "Look", "to be fair"). Never more than one.
+10. 2 or 3 short paragraphs separated by a blank line. No bullets, no headings, no bold, no emojis, no dashes.
+11. For 1 to 3 stars: 40 to 100 words, and invite them to email the manager directly. Never offer free food or discounts publicly. For 4 to 5 stars: 1 to 3 sentences, name the dish or detail they liked.
+12. Sign with a first name on its own last line, from the sign-off options. Never "Management" or "The Team".
+13. Never use any of these phrases: ${BANNED.join("; ")}.
+14. Read-aloud test: if a sentence would sound absurd said to the guest's face at the table, cut it.
+
+TWO EXAMPLES OF THE TARGET VOICE (different restaurants, do not copy content):
+Example A (3 stars, order mixed up): "Rik here, it's obviously disheartening to hear your last couple of visits haven't been up to scratch, and I'm sorry for that. Mixing up an order isn't like our team, and I've talked it through with them this morning.\n\nI'd love another shot at showing you we're still the place you've come to like.\n\nRik"
+Example B (1 star, cold food after long wait): "Sam, an hour and ten for a table and then a lukewarm plate. Yeah, that's a bad night, and it was on us.\n\nSaturday snowballed, we had two people out and the pass backed up. Not an excuse, just what happened. We've fixed the staffing for weekends.\n\nIf you're willing, email me at sam@example.com and I'll make sure your next visit is the one we're proud of.\n\nSam, GM"
+${hint?`
+EXTRA INSTRUCTION FROM THE MANAGER: ${hint}`:''}
+
+Reply with only the reply text.`;
+}
+
+// ---------- voice check: the same rules, run on the draft ----------
+function voiceCheck(text,r){
+  const words=text.trim().split(/\s+/).filter(Boolean).length;
+  const contractions=(text.match(/\b\w+'(m|re|ve|s|t|ll|d)\b/gi)||[]).length;
+  const banned=BANNED.filter(b=>text.toLowerCase().includes(b));
+  const apologies=(text.match(/\b(sorry|apolog\w*)\b/gi)||[]).length;
+  const paras=text.trim().split(/\n\s*\n/).length;
+  const lines=text.trim().split('\n');const last=lines[lines.length-1].trim();
+  const p=profile();const firstName=(p.sign.split(/[ ,]/)[0]||'').toLowerCase();
+  const signed=last.split(/\s+/).length<=4&&last.toLowerCase().includes(firstName);
+  const firstName2=r.n.split(/[ .]/)[0].toLowerCase();
+  const named=text.slice(0,80).toLowerCase().includes(firstName2);
+  const dear=/^\s*dear\b/i.test(text);
+  const neg=r.r<=3;
+  const hasI=/\bI\b|\bI'm\b|\bI've\b|\bI'd\b|\bI'll\b/.test(text);
+  const checks=[
+    {ok:words<25||contractions>=(words>=60?2:1),l:`缩写 ${contractions}`},
+    {ok:banned.length===0,l:banned.length?`套话：${banned[0]}`:'无套话'},
+    {ok:apologies<=2,l:`道歉 ${apologies} 次`},
+    {ok:neg?(words>=35&&words<=110):(words<=60),l:`${words} 词`},
+    {ok:neg?paras>=2:true,l:paras>=2?`${paras} 段`:'没分段'},
+    {ok:named&&!dear,l:dear?'用了 Dear':(named?'叫了名字':'没叫名字')},
+    {ok:signed,l:signed?'真名署名':'署名有问题'},
+  ];
+  if(neg)checks.push({ok:hasI,l:hasI?'有第一人称':'全是 we'});
+  return checks;
+}
+function voiceHtml(text,r){
+  const c=voiceCheck(text,r);const pass=c.filter(x=>x.ok).length;
+  return `<div class="vc"><span class="vc-score ${pass===c.length?'ok':pass>=c.length-1?'warn':'bad'}">人味 ${pass}/${c.length}</span>${c.map(x=>`<span class="vc-i ${x.ok?'ok':'bad'}">${x.ok?'✓':'✗'} ${x.l}</span>`).join('')}</div>`;
+}
+
+// ---------- inbox ----------
+let filter='todo';
+function visible(){
+  return R.filter(r=>{
+    if(filter==='todo')return ST[r.id]==='draft';
+    if(filter==='neg')return r.r<=3;
+    if(filter==='google')return r.p==='google';
+    if(filter==='yelp')return r.p==='yelp';
+    if(filter==='done')return ST[r.id]!=='draft';
+    return true;
+  }).sort((a,b)=>(b.d+b.t).localeCompare(a.d+a.t));
+}
+function stateHtml(r){
+  const s=ST[r.id];
+  if(s==='draft')return '<span class="state draft"><i></i>待确认</span>';
+  if(s==='pending')return '<span class="state pending"><i></i>Google 审核中</span>';
+  if(s==='copied')return '<span class="state copy"><i></i>已复制，去 Yelp 粘贴</span>';
+  return '<span class="state live"><i></i>已发布</span>';
+}
+function render(){
+  const list=$('#list');list.innerHTML='';
+  const rows=visible();
+  $('#cntInbox').textContent=R.filter(r=>ST[r.id]==='draft').length;
+  if(!rows.length){list.appendChild(el('<div class="empty">这个筛选下没有评论。</div>'));return;}
+  rows.forEach(r=>{
+    const c=el(`<article class="card ${sent(r)}" data-id="${r.id}">
+      <div class="rev">
+        <div class="left">
+          <div class="meta"><span class="plat ${r.p}">${r.p==='google'?'GOOGLE':'YELP'}</span><b>${esc(r.n)}</b><span class="stars ${r.r<=2?'low':''}">${stars(r.r)}</span><span class="num">9 月 ${+r.d.slice(3)} 日 ${r.t}</span></div>
+          <p class="txt">${esc(r.x)}</p>
+          <div class="tags">${r.c.map(k=>`<span class="tag cause">${CAUSES[k]}</span>`).join('')}${r.r>=4?'<span class="tag">好评</span>':''}${r.r===3?'<span class="tag">中评</span>':''}</div>
+        </div>
+        <div class="draft">
+          <div class="lbl"><span>AI 草稿 · ${esc(profile().sign.split(',')[0])} 的口吻</span>${stateHtml(r)}</div>
+          <textarea ${ST[r.id]!=='draft'?'readonly':''}>${esc(r.draft)}</textarea>
+          <div class="vc-wrap">${voiceHtml(r.draft,r)}</div>
+          ${ST[r.id]==='draft'?`
+          <div class="hint"><span class="note" style="align-self:center">重写：</span>
+            <button data-k="soft">语气再软一点</button>
+            <button data-k="short">更短</button>
+            <button data-k="direct">更直接</button>
+            <button data-k="sms">提排队短信</button>
+            <button data-k="regen">重新生成</button>
+          </div>
+          <div class="actions">
+            ${r.p==='google'?'<button class="btn primary act-pub">发布到 Google</button>':'<button class="btn primary act-copy">复制，去 Yelp 粘贴</button>'}
+            <button class="btn act-skip">跳过</button>
+            <span class="note act-note"></span>
+          </div>`:''}
+        </div>
+      </div></article>`);
+    list.appendChild(c);
+  });
+}
+$('#list').addEventListener('input',e=>{const card=e.target.closest('.card');if(!card||!e.target.matches('textarea'))return;const r=R.find(x=>x.id===+card.dataset.id);card.querySelector('.vc-wrap').innerHTML=voiceHtml(e.target.value,r);});
+$('#list').addEventListener('click',async e=>{
+  const card=e.target.closest('.card');if(!card)return;
+  const id=+card.dataset.id;const r=R.find(x=>x.id===id);const ta=card.querySelector('textarea');const note=card.querySelector('.act-note');
+  if(e.target.matches('.act-pub')){
+    r.draft=ta.value;ST[id]='pending';render();toast('已提交，Google 审核中');
+    setTimeout(()=>{ST[id]='live';render();toast(`给 ${r.n} 的回复已在 Google 上线`);},3500);
+  }
+  if(e.target.matches('.act-copy')){
+    r.draft=ta.value;
+    try{await navigator.clipboard.writeText(ta.value);}catch(_){ta.select();document.execCommand('copy');}
+    ST[id]='copied';render();toast('已复制到剪贴板');
+  }
+  if(e.target.matches('.act-skip')){ST[id]='live';render();toast('已跳过');}
+  if(e.target.matches('.hint button')){
+    const k=e.target.dataset.k;const v=VARIANTS[id]&&VARIANTS[id][k];
+    if(!v){note.textContent='demo 里这条没有备选版本。正式版会按「餐厅资料」现场生成。';return;}
+    const btns=card.querySelectorAll('button');btns.forEach(b=>b.disabled=true);
+    note.textContent='正在重写…';
+    setTimeout(()=>{typeOut(ta,v,()=>{r.draft=v;card.querySelector('.vc-wrap').innerHTML=voiceHtml(v,r);note.textContent='重写完成，可以直接改。';btns.forEach(b=>b.disabled=false);});},600);
+  }
+});
+$('#filters').addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b)return;filter=b.dataset.f;document.querySelectorAll('#filters .chip').forEach(x=>x.classList.toggle('on',x===b));render();});
+
+// ---------- analytics ----------
+const DAYS=['09-02','09-03','09-04','09-05','09-06','09-07','09-08'];
+const DL=['9/2 二','9/3 三','9/4 四','9/5 五','9/6 六','9/7 日','9/8 一'];
+function analytics(){
+  const byDay=DAYS.map(d=>{const rs=R.filter(r=>r.d===d);return {d,pos:rs.filter(r=>r.r>=4).length,mid:rs.filter(r=>r.r===3).length,neg:rs.filter(r=>r.r<=2).length,avg:rs.length?rs.reduce((a,r)=>a+r.r,0)/rs.length:null,n:rs.length};});
+  const total=R.length,neg=R.filter(r=>r.r<=2).length,avg=(R.reduce((a,r)=>a+r.r,0)/total).toFixed(2);
+  const todo=R.filter(r=>ST[r.id]==='draft').length;
+  $('#kpis').innerHTML=`
+   <div class="kpi"><div class="l">7 天新评论</div><div class="v">${total}</div><div class="d">Google ${R.filter(r=>r.p==='google').length} · Yelp ${R.filter(r=>r.p==='yelp').length}</div></div>
+   <div class="kpi"><div class="l">平均星级</div><div class="v">${avg}</div><div class="d bad">周末拉低了 0.9 星</div></div>
+   <div class="kpi"><div class="l">差评占比</div><div class="v">${Math.round(neg/total*100)}%</div><div class="d bad">${neg} 条 1 到 2 星</div></div>
+   <div class="kpi"><div class="l">待回复</div><div class="v">${todo}</div><div class="d ok">回复中位时长 4.2 小时</div></div>`;
+  // stacked bars
+  const W=520,H=190,pl=28,pb=26,pt=10,cw=(W-pl-10)/7,maxN=Math.max(...byDay.map(x=>x.n),1);
+  const y=v=>pt+(H-pt-pb)*(1-v/maxN);
+  let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px;display:block">`;
+  for(let g=0;g<=maxN;g+=2){s+=`<line class="grid" x1="${pl}" x2="${W-6}" y1="${y(g)}" y2="${y(g)}"/><text x="${pl-6}" y="${y(g)+4}" text-anchor="end">${g}</text>`;}
+  byDay.forEach((d,i)=>{
+    const x=pl+i*cw+cw*0.22,bw=cw*0.56;let acc=0;
+    [['neg','var(--neg)'],['mid','var(--neutral-bar)'],['pos','var(--good)']].forEach(([k,col])=>{
+      const v=d[k];if(!v)return;const y1=y(acc+v),h=y(acc)-y(acc+v)-2;
+      s+=`<rect x="${x}" y="${y1}" width="${bw}" height="${Math.max(h,0)}" rx="3" fill="${col}" data-tip="${DL[i]} ${({neg:'差评',mid:'中评',pos:'好评'})[k]} ${v} 条"/>`;acc+=v;});
+    s+=`<text x="${x+bw/2}" y="${H-8}" text-anchor="middle">${DL[i]}</text>`;
+  });
+  $('#stack').innerHTML=s+'</svg>';
+  // causes
+  const cc={};R.filter(r=>r.r<=3).forEach(r=>r.c.forEach(k=>cc[k]=(cc[k]||0)+1));
+  const arr=Object.entries(cc).sort((a,b)=>b[1]-a[1]);const mx=arr[0][1];
+  $('#causes').innerHTML=arr.map(([k,v])=>`<div class="hbar"><span>${CAUSES[k]}</span><div class="bar"><i style="width:${v/mx*100}%"></i></div><span class="n">${v}</span></div>`).join('')+
+   `<div class="note" style="margin-top:12px">等位相关（等待时长 + 等位管理）占了差评原因的 ${Math.round(((cc.wait||0)+(cc.waitlist||0))/arr.reduce((a,x)=>a+x[1],0)*100)}%，菜品本身只占 ${Math.round((cc.food||0)/arr.reduce((a,x)=>a+x[1],0)*100)}%。</div>`;
+  // trend
+  const W2=520,H2=170,pl2=28,pb2=26,pt2=12,cw2=(W2-pl2-10)/7;
+  const yy=v=>pt2+(H2-pt2-pb2)*(1-(v-1)/4);
+  let t=`<svg viewBox="0 0 ${W2} ${H2}" width="100%" style="max-width:${W2}px;display:block">`;
+  [1,2,3,4,5].forEach(g=>{t+=`<line class="grid" x1="${pl2}" x2="${W2-6}" y1="${yy(g)}" y2="${yy(g)}"/><text x="${pl2-6}" y="${yy(g)+4}" text-anchor="end">${g}</text>`;});
+  const pts=byDay.map((d,i)=>d.avg!=null?[pl2+i*cw2+cw2/2,yy(d.avg),d.avg]:null).filter(Boolean);
+  t+=`<path d="${pts.map((p,i)=>(i?'L':'M')+p[0]+' '+p[1]).join(' ')}" fill="none" stroke="var(--accent)" stroke-width="2"/>`;
+  pts.forEach((p,i)=>{t+=`<circle cx="${p[0]}" cy="${p[1]}" r="${i===pts.length-1?5:4}" fill="var(--accent)" stroke="var(--panel)" stroke-width="2" data-tip="${DL[i]} 平均 ${p[2].toFixed(2)} 星"/>`;});
+  const last=pts[pts.length-1];t+=`<text x="${last[0]}" y="${last[1]-10}" text-anchor="middle" style="font-weight:600;fill:var(--ink)">${last[2].toFixed(1)}</text>`;
+  byDay.forEach((d,i)=>{t+=`<text x="${pl2+i*cw2+cw2/2}" y="${H2-8}" text-anchor="middle">${DL[i]}</text>`;});
+  $('#trend').innerHTML=t+'</svg>';
+  // keywords
+  const words=[['wait',11],['hour',9],['waitlist / list',7],['phone',4],['host',6],['2:30 / closing',3],['broccoli',2],['sauce',2],['removed',3],['ticket',3]];
+  $('#kw').innerHTML=words.map(([w,n])=>`<span>${w}<b>${n}</b></span>`).join('');
+  const negAll=R.filter(r=>r.r<=3).length,negDone=R.filter(r=>r.r<=3&&ST[r.id]!=='draft').length;
+  $('#replystat').innerHTML=`<div class="hbar"><span>差评已回复</span><div class="bar"><i style="width:${negDone/negAll*100}%;background:var(--accent)"></i></div><span class="n">${negDone}/${negAll}</span></div>
+  <div class="hbar"><span>好评已回复</span><div class="bar"><i style="width:${R.filter(r=>r.r>=4&&ST[r.id]!=='draft').length/R.filter(r=>r.r>=4).length*100}%;background:var(--accent)"></i></div><span class="n">${R.filter(r=>r.r>=4&&ST[r.id]!=='draft').length}/${R.filter(r=>r.r>=4).length}</span></div>`;
+}
+const tip=$('#tip');
+document.addEventListener('mousemove',e=>{const t=e.target.closest&&e.target.closest('[data-tip]');if(t){tip.textContent=t.dataset.tip;tip.style.display='block';tip.style.left=(e.clientX+12)+'px';tip.style.top=(e.clientY-30)+'px';}else tip.style.display='none';});
+
+// ---------- summary ----------
+const SUMMARY=`早，Andy。昨天（9 月 7 日）的评论情况：
+
+新评论 6 条：5 星 1，2 星 1，1 星 4。平均 1.8 星，比周六（2.9）又低了。
+
+差评原因：
+· 等位管理 4 条（叫号没人应直接移出名单、名字丢了）
+· 等待时长 4 条（2 到 2.5 小时，有人等到厨房关门）
+· 电话没人接 1 条
+· 菜品 1 条（牛肉西兰花汤汁多、没锅气）
+
+今天最值得做的 3 件事：
+1. 前台恢复告诉顾客预计等待时间。4 条差评里 3 条提到「没人告诉我要等多久」。
+2. 下午 1 点后按厨房产能停止发号，别再出现等到 2:30 吃不上的情况。
+3. 短信叫号今天能上就上，「去逛一圈回来被除名」是最伤人的一条。
+
+还有 6 条没回，草稿都起好了，收件箱里点一下就行。`;
+$('#sumText').textContent=SUMMARY;
+const SUMMARY2=`Andy，早。9 月 7 日的情况：
+
+6 条新评论，4 条 1 星、1 条 2 星、1 条 5 星，平均 1.8。周六是 2.9，还在往下走。
+
+差评几乎全是等位：4 条说被移出名单或名字丢了，4 条等了 2 小时以上，1 条电话没人接，1 条说牛肉西兰花汤汁多。菜本身不是问题，门口是。
+
+今天做这 3 件：
+1. 前台恢复报预计等待时间，昨天 3 条差评都在说「没人告诉我要等多久」。
+2. 1 点以后按厨房产能停止发号，别让人等到 2:30 吃不上。
+3. 短信叫号今天上线，等位的人可以走开逛逛。
+
+6 条还没回，草稿在收件箱里，点一下就发。`;
+let sumAlt=false;
+$('#regen').addEventListener('click',()=>{
+  $('#regen').disabled=true;$('#regenNote').textContent='正在生成…';
+  const box=$('#sumText');const next=sumAlt?SUMMARY:SUMMARY2;sumAlt=!sumAlt;
+  setTimeout(()=>{typeOut(box,next,()=>{$('#regenNote').textContent='已重新生成（demo 里是预设的第二版）';$('#regen').disabled=false;});},700);
+});
+$('#saveProfile').addEventListener('click',()=>{toast('已保存，草稿会用新的资料');render();});
+
+// ---------- nav ----------
+document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.nav button').forEach(x=>x.classList.toggle('on',x===b));
+  document.querySelectorAll('.page').forEach(p=>p.classList.toggle('on',p.id==='page-'+b.dataset.page));
+  if(b.dataset.page==='analytics')analytics();
+}));
+$('#clock').textContent='2026 年 9 月 8 日 周一 · 最近同步 2 分钟前';
+render();analytics();
+</script>
+</body></html>
