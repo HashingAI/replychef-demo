@@ -158,11 +158,10 @@ svg .axis{stroke:var(--line-2)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head><body>
-
 <div class="app">
   <aside class="rail">
     <div class="brand"><div class="mark">R</div><div><b>ReplyChef</b><small>demo · 样例数据</small></div></div>
-    <div class="store"><b>Chef Fei · UTC</b><span>San Diego · 开业第 3 周</span></div>
+    <div class="store"><b id="storeName">Sample Restaurant</b><span id="storeSub">Demo workspace · Week 3</span></div>
     <nav class="nav">
       <button class="on" data-page="inbox">收件箱 <span class="cnt" id="cntInbox">0</span></button>
       <button data-page="analytics">评论分析</button>
@@ -175,7 +174,7 @@ svg .axis{stroke:var(--line-2)}
   <main class="main">
     <!-- INBOX -->
     <section class="page on" id="page-inbox">
-      <div class="head"><div><h1>待处理评论</h1><p>新差评 5 分钟内起草好回复，Andy 看一眼、点一下就发。</p></div>
+      <div class="head"><div><h1 id="inboxTitle">待处理评论</h1><p id="inboxSub">适用于多家餐厅的共享工作区：集中审核、编辑并发布回复。</p></div>
         <span class="note" id="clock"></span></div>
       <div class="filters" id="filters">
         <button class="chip on" data-f="todo">待处理</button>
@@ -208,7 +207,7 @@ svg .axis{stroke:var(--line-2)}
 
     <!-- SUMMARY -->
     <section class="page" id="page-summary">
-      <div class="head"><div><h1>每日总结</h1><p>每天早上 9 点发到 Andy 手机。下面是昨天（9 月 7 日）的那条。</p></div></div>
+      <div class="head"><div><h1 id="summaryTitle">每日总结</h1><p id="summarySub">汇总评论、趋势与今日待办。</p></div></div>
       <div class="two">
         <div class="phone"><div class="from">ReplyChef · 09:00</div><div class="bubble" id="sumText"></div></div>
         <div>
@@ -228,16 +227,16 @@ svg .axis{stroke:var(--line-2)}
 
     <!-- PROFILE -->
     <section class="page" id="page-profile">
-      <div class="head"><div><h1>餐厅资料</h1><p>AI 起草回复时只引用这里写的事实，不会自己编。Andy 每周更新一次就行。</p></div></div>
+      <div class="head"><div><h1 id="profileTitle">餐厅资料</h1><p id="profileSub">AI 只使用这里填写的事实，让每家餐厅的回复都准确。</p></div></div>
       <div class="banner">改完之后再去收件箱点「重写」，草稿会用新的信息。</div>
       <div class="panel form" style="max-width:720px">
-        <label>署名 <input id="pSign" value="Andy, General Manager"></label>
-        <label>餐厅简介 <textarea id="pAbout">Chef Fei's first US location, near UTC in San Diego. Hunan cuisine, wok-fired dishes. Opened late August 2026.</textarea></label>
-        <label>营业与排队规则 <textarea id="pRules">Lunch kitchen takes last orders at 2:30 PM. Walk-in only for now; waitlist is managed at the host stand. We are rolling out text-message notifications so guests can leave and come back when their table is ready.</textarea></label>
-        <label>最近改进（回复里可以提的） <textarea id="pFix">Added a second host at the front on weekends. Dedicated phone line staffed 11 AM to 9 PM starting this week. Estimated wait times are now shared with every party at check-in. Kitchen retrained on wok sauce reduction for beef and broccoli.</textarea></label>
-        <label>联系方式 <input id="pContact" value="andy@cheffeiusa.com"></label>
-        <label>Andy 说话的习惯（AI 会模仿） <textarea id="pVoice">Direct, a little dry. Says "honestly" and "that's on me". Talks about the kitchen as "the kitchen", the host stand as "the front". Doesn't over-apologize. Proud of the pork with peppers and the fish head. Types on his phone, so short sentences, no fancy words.</textarea></label>
-        <label>署名可选（每条随机换一个，避免看起来像模板） <input id="pSigns" value="Andy / Andy, GM / Andy at Chef Fei"></label>
+        <label>Sign-off name <input id="pSign" value="The Restaurant Team"></label>
+        <label>About the restaurant <textarea id="pAbout">Add a concise introduction for this restaurant. This information is used only to make replies accurate and relevant.</textarea></label>
+        <label>Hours &amp; waitlist policy <textarea id="pRules">Add current hours, reservation or waitlist policies, and guest communication guidelines.</textarea></label>
+        <label>Recent improvements <textarea id="pFix">Add verified improvements that may be referenced in replies, such as staffing, service, or menu updates.</textarea></label>
+        <label>Contact email <input id="pContact" value="hello@example-restaurant.com"></label>
+        <label>Reply voice notes <textarea id="pVoice">Warm, clear, and specific. Acknowledge the guest’s experience without overpromising. Use plain language and short paragraphs.</textarea></label>
+        <label>Sign-off variants <input id="pSigns" value="The Restaurant Team / Guest Experience Team / Management"></label>
         <label>回复里不能出现的 <input id="pNever" value="Do not promise refunds or specific compensation amounts. Do not blame guests. Do not mention other customers."></label>
         <div class="actions"><button class="btn primary" id="saveProfile">保存</button><span class="note">demo 里只保存在本页面</span></div>
       </div>
@@ -292,6 +291,9 @@ const R=[
  {id:23,p:"google",n:"Olivia G.",r:4,d:"09-02",t:"13:00",x:"Great flavors, spicy as promised. Parking is tough, plan ahead.",c:[],draft:"Olivia, thanks. And good tip on parking, the garage behind the building is usually easier than the front lot.\n\nAndy"},
  {id:24,p:"google",n:"Wei L.",r:5,d:"09-02",t:"12:15",x:"Tastes like home. Chopped chili fish head is the real deal.",c:[],draft:"Wei, tastes like home is the best thing anyone can say to us. Thank you.\n\nAndy"},
 ];
+// Keep the sample tenant neutral: no individual owner or named restaurant is implied.
+function genericize(value){return String(value).replace(/Chef Fei/gi,'Sample Restaurant').replace(/andy@cheffeiusa\.com/gi,'hello@example-restaurant.com').replace(/\bAndy,?\s*GM\b/gi,'The Restaurant Team').replace(/\bAndy\b/gi,'The Restaurant Team');}
+R.forEach(r=>{r.x=genericize(r.x);r.draft=genericize(r.draft);});
 // replied state: older ones already replied, this weekend's are pending
 const ST={};
 R.forEach(r=>{ST[r.id]= r.d<="09-05" ? "live" : "draft";});
@@ -455,7 +457,7 @@ $('#list').addEventListener('click',async e=>{
   }
   if(e.target.matches('.act-skip')){ST[id]='live';render();toast('已跳过');}
   if(e.target.matches('.hint button')){
-    const k=e.target.dataset.k;const v=VARIANTS[id]&&VARIANTS[id][k];
+    const k=e.target.dataset.k;const v=VARIANTS[id]&&genericize(VARIANTS[id][k]);
     if(!v){note.textContent='demo 里这条没有备选版本。正式版会按「餐厅资料」现场生成。';return;}
     const btns=card.querySelectorAll('button');btns.forEach(b=>b.disabled=true);
     note.textContent='正在重写…';
@@ -516,7 +518,7 @@ const tip=$('#tip');
 document.addEventListener('mousemove',e=>{const t=e.target.closest&&e.target.closest('[data-tip]');if(t){tip.textContent=t.dataset.tip;tip.style.display='block';tip.style.left=(e.clientX+12)+'px';tip.style.top=(e.clientY-30)+'px';}else tip.style.display='none';});
 
 // ---------- summary ----------
-const SUMMARY=`早，Andy。昨天（9 月 7 日）的评论情况：
+const SUMMARY=`早。昨天的评论情况：
 
 新评论 6 条：5 星 1，2 星 1，1 星 4。平均 1.8 星，比周六（2.9）又低了。
 
@@ -531,9 +533,9 @@ const SUMMARY=`早，Andy。昨天（9 月 7 日）的评论情况：
 2. 下午 1 点后按厨房产能停止发号，别再出现等到 2:30 吃不上的情况。
 3. 短信叫号今天能上就上，「去逛一圈回来被除名」是最伤人的一条。
 
-还有 6 条没回，草稿都起好了，收件箱里点一下就行。`;
+还有 6 条待处理，草稿已准备好，审核后即可发布。`;
 $('#sumText').textContent=SUMMARY;
-const SUMMARY2=`Andy，早。9 月 7 日的情况：
+const SUMMARY2=`早。今天的重点：
 
 6 条新评论，4 条 1 星、1 条 2 星、1 条 5 星，平均 1.8。周六是 2.9，还在往下走。
 
@@ -544,7 +546,7 @@ const SUMMARY2=`Andy，早。9 月 7 日的情况：
 2. 1 点以后按厨房产能停止发号，别让人等到 2:30 吃不上。
 3. 短信叫号今天上线，等位的人可以走开逛逛。
 
-6 条还没回，草稿在收件箱里，点一下就发。`;
+6 条还没回，草稿在收件箱里，审核后即可发布。`;
 let sumAlt=false;
 $('#regen').addEventListener('click',()=>{
   $('#regen').disabled=true;$('#regenNote').textContent='正在生成…';
